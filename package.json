@@ -1,6 +1,6 @@
 {
   "name": "@molcay/jsctx",
-  "version": "0.1.2",
+  "version": "0.0.1",
   "description": "A strictly typed context library for JavaScript / TypeScript projects.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
