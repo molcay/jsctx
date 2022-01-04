@@ -36,7 +36,8 @@ describe('Timer', () => {
         setTimeout(() => {
             timer.stop(Timer.STATUS_SUCCESS);
             expect(timer.elapsedTime).to.be.a('number');
-            expect(timer.elapsedTime).to.be.gte(waitTime);
+            expect(timer.elapsedTime).to.be.gte(waitTime / 2);
+            expect(timer.elapsedTime).to.be.lte(waitTime * 2);
 
             const logData = log.finalize();
             expect(logData.timers).to.have.property('timer2.s');
@@ -55,7 +56,8 @@ describe('Timer', () => {
         setTimeout(() => {
             timer.stop();
             expect(timer.elapsedTime).to.be.a('number');
-            expect(timer.elapsedTime).to.be.gte(waitTime);
+            expect(timer.elapsedTime).to.be.gte(waitTime / 2);
+            expect(timer.elapsedTime).to.be.lte(waitTime * 2);
 
             const logData = log.finalize();
             expect(logData.timers).to.have.property('timer3');
