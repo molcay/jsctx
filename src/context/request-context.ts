@@ -1,16 +1,14 @@
 import { Context } from "./context";
-import { RequestContextOptions } from "../types";
-import { DEFAULT_REQUEST_OPTIONS } from "../constants";
+import { ContextOptions } from "../types";
+import { DEFAULT_CONTEXT_OPTIONS } from "../constants";
 
 
 export class RequestContext<REQ_TYPE, RES_TYPE> extends Context {
-    private requestId;
     private _request: REQ_TYPE | undefined;
     private _response: RES_TYPE | undefined;
 
-    constructor(options: RequestContextOptions = DEFAULT_REQUEST_OPTIONS) {
+    constructor(options: ContextOptions = { ...DEFAULT_CONTEXT_OPTIONS, ctxType:  'REQ-CTX' }) {
         super(options);
-        this.requestId = options.reqIdFactory();
     }
 
     public get request(): REQ_TYPE | undefined {
@@ -27,5 +25,28 @@ export class RequestContext<REQ_TYPE, RES_TYPE> extends Context {
 
     public set response(responseToSet: RES_TYPE | undefined) {
         this._response = responseToSet;
+    }
+
+    /**
+     * This method returns an object that contains request related data to log.
+     * You must override this to log HTTP request's headers, request IP address, etc.
+     */
+    public requestToLog(): object {
+        return {};
+    }
+
+    /**
+     * This method returns an object that contains response related data to log.
+     * You must override this to log HTTP response's status code, message etc.
+     */
+    public responseToLog(): object {
+        return {};
+    }
+
+    public get extras(): object {
+        return {
+          req: this.requestToLog(),
+          res: this.responseToLog(),
+        };
     }
 }

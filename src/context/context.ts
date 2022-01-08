@@ -1,5 +1,5 @@
 import { now } from '../helpers';
-import { ContextOptions, JsonObject } from "../types";
+import { ContextLogOptions, ContextOptions, JsonObject } from "../types";
 import { DEFAULT_CONTEXT_OPTIONS } from "../constants";
 import { ContextLog } from "./context-log";
 
@@ -7,6 +7,7 @@ import { ContextLog } from "./context-log";
 export class Context {
     public id: string;
     private readonly ctxType: string;
+    private readonly dateTimeFormatter: (date: Date) => string;
     private readonly startTime: Date;
     private endTime: Date | null = null;
     private readonly data: JsonObject;
@@ -15,11 +16,19 @@ export class Context {
 
     constructor(options: ContextOptions = DEFAULT_CONTEXT_OPTIONS) {
         this.options = options;
-        this.ctxType = this.options.ctxType;
-        this.id = this.options.ctxIdFactory();
+        this.ctxType = this.options.ctxType ||
+            DEFAULT_CONTEXT_OPTIONS.ctxType as string;
+        const idFactory = this.options.ctxIdFactory ||
+            DEFAULT_CONTEXT_OPTIONS.ctxIdFactory as () => string;
+        this.dateTimeFormatter = this.options.dateTimeFormatter ||
+            DEFAULT_CONTEXT_OPTIONS.dateTimeFormatter as (date: Date) => string;
+        const contextLogOptions = this.options.logOptions ||
+            DEFAULT_CONTEXT_OPTIONS.logOptions as ContextLogOptions;
+
+        this.id = idFactory();
         this.startTime = now();
+        this.log = new ContextLog(this, contextLogOptions);
         this.data = {};
-        this.log = new ContextLog(this, this.options.logOptions);
     }
 
     public set(key: string, value: unknown): Context {
@@ -50,6 +59,13 @@ export class Context {
         }
     }
 
+    /**
+     * This method is for appending special data for child classes.
+     */
+    public get extras(): object {
+        return {};
+    }
+
     public finalize(): object {
         if (this.endTime === null) {
             this.endTime = now();
@@ -60,11 +76,11 @@ export class Context {
         return {
             type: this.ctxType,
             id: this.id,
-            startTime: this.options.datetimeFormat(this.startTime),
-            endTime: this.options.datetimeFormat(this.endTime),
+            startTime: this.dateTimeFormatter(this.startTime),
+            endTime: this.dateTimeFormatter(this.endTime),
             data,
             timers,
-            ...this.options.extrasFactory(),
+            ...this.extras,
         };
     }
 }

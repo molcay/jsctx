@@ -5,12 +5,13 @@ import { ContextLog } from "../../src";
 import { Context } from "../../src";
 import { DEFAULT_CONTEXT_OPTIONS } from "../../src/constants";
 import { assertSingleCounterData } from "../testHelpers";
+import { ContextLogOptions } from "../../src/types";
 
 
 describe('Timer', () => {
     it('stop with failure should works correctly', () => {
         const ctx = new Context();
-        const log = new ContextLog(ctx, DEFAULT_CONTEXT_OPTIONS.logOptions);
+        const log = new ContextLog(ctx, DEFAULT_CONTEXT_OPTIONS.logOptions as ContextLogOptions);
         const waitTime = 35;
         const timer: Timer = new Timer('timer1', log);
 
@@ -22,14 +23,14 @@ describe('Timer', () => {
             const logData = log.finalize();
             expect(logData.timers).to.have.property('timer1.f');
 
-            const timerData = logData.timers['timer1.f'] as any;
+            const timerData = logData.timers['timer1.f'] as unknown;
             assertSingleCounterData(timerData, waitTime);
         }, waitTime);
     });
 
     it('stop with success should works correctly', () => {
         const ctx = new Context();
-        const log = new ContextLog(ctx, DEFAULT_CONTEXT_OPTIONS.logOptions);
+        const log = new ContextLog(ctx, DEFAULT_CONTEXT_OPTIONS.logOptions as ContextLogOptions);
         const waitTime = 25;
         const timer: Timer = new Timer('timer2', log);
 
@@ -42,14 +43,14 @@ describe('Timer', () => {
             const logData = log.finalize();
             expect(logData.timers).to.have.property('timer2.s');
 
-            const timerData = logData.timers['timer2.s'] as any;
+            const timerData = logData.timers['timer2.s'] as unknown;
             assertSingleCounterData(timerData, waitTime);
         }, waitTime);
     });
 
     it('stop without status should works correctly', () => {
         const ctx = new Context();
-        const log = new ContextLog(ctx, DEFAULT_CONTEXT_OPTIONS.logOptions);
+        const log = new ContextLog(ctx, DEFAULT_CONTEXT_OPTIONS.logOptions as ContextLogOptions);
         const waitTime = 15;
         const timer: Timer = new Timer('timer3', log);
 
@@ -62,7 +63,7 @@ describe('Timer', () => {
             const logData = log.finalize();
             expect(logData.timers).to.have.property('timer3');
 
-            const timerData = logData.timers['timer3'] as any;
+            const timerData = logData.timers['timer3'] as unknown;
             assertSingleCounterData(timerData, waitTime);
         }, waitTime);
     });

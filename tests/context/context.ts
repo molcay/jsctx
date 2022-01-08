@@ -3,6 +3,41 @@ import { expect } from 'chai';
 import { Context } from "../../src";
 
 describe('Context', () => {
+    describe('constructor', () => {
+        const REGEX_UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+        const REGEX_ISO_DATETIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z/;
+
+        it('should set different options', function () {
+            let ctx = new Context({
+                ctxType: 'TestCTX'
+            });
+            let d: any = ctx.finalize();
+
+            expect(d.type).to.be.eq('TestCTX');
+            expect(d.id).to.be.match(REGEX_UUID);
+            expect(d.startTime).to.be.match(REGEX_ISO_DATETIME);
+
+            ctx = new Context({
+                ctxIdFactory: () => Math.random().toString(36).replace(/[^a-z]+/g, '').substring(0, 5),
+            });
+            d = ctx.finalize();
+
+            expect(d.type).to.be.not.eq('TestCTX');
+            expect(d.type).to.be.eq('CTX');
+            expect(d.id).to.be.match(/[a-z]{5}/);
+            expect(d.startTime).to.be.match(REGEX_ISO_DATETIME);
+
+            ctx = new Context({
+                dateTimeFormatter: (date) => `${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}:${date.getUTCMilliseconds()}`,
+            });
+            d = ctx.finalize();
+
+            expect(d.type).to.be.not.eq('TestCTX');
+            expect(d.type).to.be.eq('CTX');
+            expect(d.startTime).to.be.match(/[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}/);
+        });
+    });
+
     describe('set', () => {
         it('should works correctly', () => {
             const ctx: Context = new Context();
