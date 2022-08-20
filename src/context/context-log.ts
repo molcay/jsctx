@@ -72,6 +72,21 @@ export class ContextLog {
         }
     }
 
+    public async withTimerAsync<T>(key: string, f: () => T): Promise<T> {
+        const timer: Timer = this.startTimer(key);
+        let status;
+        try {
+            const v = await f();
+            status = Timer.STATUS_SUCCESS;
+            return v;
+        } catch (e) {
+            status = Timer.STATUS_FAILURE;
+            throw e;
+        } finally {
+            timer.stop(status);
+        }
+    }
+
     public finalize(): { data: JsonObject, timers: JsonObject } {
         this.setTimer(this.options.timerKeyForAll, this.ctx.elapsed);
 
