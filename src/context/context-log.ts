@@ -46,6 +46,12 @@ export class ContextLog {
         return timer;
     }
 
+    public stopTimer(key: string, status?: string): number {
+        const timer = this.timers[key];
+        timer.stop(status);
+        return timer.elapsedTime;
+    }
+
     public setTimer(key: string, timeSpent: number) {
         const counter: Counter | undefined = this.timerCounters[key];
         if (!counter) {
