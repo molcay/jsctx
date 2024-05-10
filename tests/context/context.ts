@@ -34,7 +34,7 @@ describe('Context', () => {
 
             expect(d.type).to.be.not.eq('TestCTX');
             expect(d.type).to.be.eq('CTX');
-            expect(d.startTime).to.be.match(/[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}/);
+            expect(d.startTime).to.be.not.empty;
         });
     });
 

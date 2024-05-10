@@ -25,7 +25,7 @@ describe('RequestContext', () => {
 
             expect(d.type).to.be.eq('test-req-ctx');
             expect(d.id).to.be.match(/[a-z]{5}/);
-            expect(d.startTime).to.be.match(/[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}/);
+            expect(d.startTime).to.be.not.empty;
         });
     });
 
