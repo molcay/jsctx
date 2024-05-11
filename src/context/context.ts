@@ -13,6 +13,8 @@ export class Context {
     private readonly data: JsonObject;
     private options: ContextOptions;
     public log: ContextLog;
+    private isFinalized = false;
+    private finalizedData: JsonObject;
 
     constructor(options: ContextOptions = DEFAULT_CONTEXT_OPTIONS) {
         this.options = options;
@@ -29,6 +31,7 @@ export class Context {
         this.startTime = now();
         this.log = new ContextLog(this, contextLogOptions);
         this.data = {};
+        this.finalizedData = {};
     }
 
     public set(key: string, value: unknown): Context {
@@ -66,21 +69,33 @@ export class Context {
         return {};
     }
 
-    public finalize(): object {
+    public finalize(logFunction = console.info): object {
+        if (this.isFinalized) {  // already finalized context
+            logFunction('Context is already finalized!');
+            return this.finalizedData;
+        }
+
+        // first time calling finalize
         if (this.endTime === null) {
             this.endTime = now();
         }
+        try {
+            const { data, timers } = this.log.finalize();
 
-        const { data, timers } = this.log.finalize();
+            this.finalizedData = {
+                type: this.ctxType,
+                id: this.id,
+                startTime: this.dateTimeFormatter(this.startTime),
+                endTime: this.dateTimeFormatter(this.endTime),
+                data,
+                timers,
+                ...this.extras,
+            };
+            this.isFinalized = true;
 
-        return {
-            type: this.ctxType,
-            id: this.id,
-            startTime: this.dateTimeFormatter(this.startTime),
-            endTime: this.dateTimeFormatter(this.endTime),
-            data,
-            timers,
-            ...this.extras,
-        };
+        } catch (e) {
+            logFunction(`Error occurred while serializing the context! ${e}`);
+        }
+        return this.finalizedData;
     }
 }
